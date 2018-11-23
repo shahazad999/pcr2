@@ -41,8 +41,8 @@ class Main extends Component {
     constructor(props){
         super(props);
         this.state = {
-            'username': '', 'password':'' , isLoggedIn : false, isUserValid: false,
-            'items': [], 'hash' : '',  'id': '', hostIP: 'localhost', port: '4000',channelName: 'mychannel', chaincodeName:'pcr', peerName: 'peer0.org1.example.com', 
+            'username': '', 'password':'' , isLoggedIn : false, isUserValid: false, isAdmin: false,
+            'items': [], 'hash' : '',  'id': '', hostIP: 'localhost', port: '4000',channelName: 'mychannel', chaincodeName:'pcr3', peerName: 'peer0.org1.example.com', 
             'auth' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDE1NDIzNjAxNjksInVzZXJuYW1lIjoiUGF5ZXIiLCJvcmdOYW1lIjoiT3JnMiIsImlhdCI6MTU0MjM2MDE2OX0.FzaNkJWmY1LsXpoMZqCOdE4nS8Vybz8YO1gcXJ7M-fc', 
             fetchError: 0, 'toutput': [] ,'foutput' : [], view: false, disableHashInput: false,
             fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim', 
@@ -64,7 +64,7 @@ class Main extends Component {
         var len = hash.length;
         //Fetch blockchain function triggered hash lenght is met
         if (len > 33) {
-          this.fetchData()
+          this.fetchHashValid()
         }
         //When no Checkbox is selected  
         const {selectedAnswers, view} = this.state;
@@ -85,15 +85,18 @@ class Main extends Component {
     }
     handleSubmit(){
         //Check the password
-        const { password } = this.state;     
-        if (!(password === 'blockchain')) {
+        const { password, username } = this.state;
+        if (username ==='administrator' &&  password ==='creator') {
+            this.setState({ isAdmin: true }) 
+        }     
+        //Check the USER in blockchain 
+        else if ((password === 'blockchain')) {
+            this.fetchUser()
+        }else {
             this.setState({ isLoggedIn: false }) 
             alert("Invalid Pasword")
-        }
-        //Check the USER in blockchain 
-        if ((password === 'blockchain')) {
-            this.fetchUser()
-        }  
+        } 
+     
     }
     handleLogout() {
         this.setState({isLoggedIn : false, isUserValid: false, fhirUrl: '', username: '', password: '', 'items': [], 'hash': '', fetchURL: '', fhirResponse: '', selectedAnswers: [], Holder: 'Enter a valid Hash provided in the claim', view:  false})
@@ -136,6 +139,25 @@ class Main extends Component {
     } )
  
     }
+    fetchHashValid(){
+        let config = {
+            method: 'GET',
+            headers: {
+              'authorization': 'Bearer '+this.state.auth,
+              'content-Type': 'application/json'
+            },
+          }
+         fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=isValid&args=%5B%22hash%22,%22'+this.state.hash+'%22%5D', config)
+              .then(response =>  response.text() )
+              .then(response => {
+                  if (response.length === 0 && response[0] !== 'E'){
+                      this.fetchData()
+                  } else {
+                      alert("Invalid Hash")  
+                  }
+              } )
+              .catch(err => console.log(err))
+    }
 /***********************************************************************
  * This fetches the USER in Blockchain network to authenticate the LOGIN
  ***********************************************************************/
@@ -147,16 +169,17 @@ class Main extends Component {
             'content-Type': 'application/json'
           },
         }
-       fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22payerId%5C%22:%5C%22'+this.state.username+'%5C%22%7D%7D%22%5D', config)
+       fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=isValid&args=%5B%22payer%22,%22'+this.state.username+'%22%5D', config)
             .then(response =>  response.text() )
             .then(response => {
-                if (response.length > 20 ){
+                if (response.length === 0 && response[0] !== 'E'){
                     this.setState({ isUserValid : true , isLoggedIn: true})
                 } else {
                     this.setState({ isUserValid : false })
                     alert("User did not registerd for Blockchain Service")  
                 }
             } )
+            .catch(err => console.log(err))
     }
 /******************************************************************
  * Fetches data from the FHIR URl that recived from the blockchain 
@@ -330,14 +353,40 @@ class Main extends Component {
             </DynamicGrid>    
         </div>
 
+/**
+ * AdminPage
+ */
+        const adminPage = <div>
+            <ul>
+            HostIP : <Input required type="text" placeholder ={this.state.hostIP} value={this.state.hostIP}  onChange={(e) => { this.setState({hostIP: e.target.value}); this.forceUpdate();}}  style={{ margin: 'auto', width: '320px', height: '35px'}}/>                      
+            </ul>
+            <ul>
+            port : <Input required type="text" placeholder ={this.state.port} value={this.state.port}  onChange={(e) => { this.setState({port: e.target.value})}}  style={{ margin: 'auto', width: '320px', height: '35px'}}/>                      
+            </ul>
+            <ul>
+            channelName : <Input required type="text" placeholder ={this.state.channelName} value={this.state.channelName}  onChange={(e) => { this.setState({channelName: e.target.value})}}  style={{ margin: 'auto', width: '320px', height: '35px'}}/>                      
+            </ul>
+            <ul>
+            chaincodeName : <Input required type="text" placeholder ={this.state.chaincodeName} value={this.state.chaincodeName}  onChange={(e) => { this.setState({chaincodeName: e.target.value})}}  style={{ margin: 'auto', width: '320px', height: '35px'}}/>                      
+            </ul>
+            <ul>
+            peerName : <Input required type="text" placeholder ={this.state.peerName} value={this.state.peerName}  onChange={(e) => { this.setState({peerName: e.target.value})}}  style={{ margin: 'auto', width: '320px', height: '35px'}}/>                      
+            </ul>  
+            <ul>
+            <Button color="success" size="lg" onClick={() => { this.setState({ isAdmin: false})}} text="Logout" variant="action" style={{ margin: '5px'}} />        
+            </ul>              
+        </div>
+
 /*******************
  * Login Validation
  ********************/
         let result;
-        const {isUserValid} = this.state;
+        const {isUserValid, isAdmin} = this.state;
         if (isUserValid) {
             result =   mainPage 
-        } else {
+        } else if (isAdmin) {
+            result = adminPage
+        }else {
             result = logInPage
            
         }
