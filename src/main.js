@@ -42,7 +42,7 @@ class Main extends Component {
         super(props);
         this.state = {
             'username': '', 'password':'' , isLoggedIn : false, isUserValid: false,
-            'items': [], 'hash' : '',  'id': '', hostIP: 'rdctstbc001', port: '',
+            'items': [], 'hash' : '',  'id': '', hostIP: 'localhost', port: '4000',channelName: 'mychannel', chaincodeName:'pcr', peerName: 'peer0.org1.example.com', 
             'auth' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDE1NDIzNjAxNjksInVzZXJuYW1lIjoiUGF5ZXIiLCJvcmdOYW1lIjoiT3JnMiIsImlhdCI6MTU0MjM2MDE2OX0.FzaNkJWmY1LsXpoMZqCOdE4nS8Vybz8YO1gcXJ7M-fc', 
             fetchError: 0, 'toutput': [] ,'foutput' : [], view: false, disableHashInput: false,
             fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim', 
@@ -120,7 +120,7 @@ class Main extends Component {
           'content-Type': 'application/json'
         },
       }
-      fetch('http://'+this.state.hostIP+':4000' + '/channels/mychannel/chaincodes/pcr?peer=peer0.org1.example.com&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22_rev%5C%22:%5C%22'+this.state.hash+'%5C%22,%5C%22payerId%5C%22:%5C%22'+this.state.username+'%5C%22%7D%7D%22%5D', config)
+      fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22_rev%5C%22:%5C%22'+this.state.hash+'%5C%22,%5C%22payerId%5C%22:%5C%22'+this.state.username+'%5C%22%7D%7D%22%5D', config)
         .then(response =>  response.json() )
         .then(response => {
             if (JSON.stringify(response) === '[]'){
@@ -147,7 +147,7 @@ class Main extends Component {
             'content-Type': 'application/json'
           },
         }
-       fetch('http://'+this.state.hostIP+':4000' + '/channels/mychannel/chaincodes/pcr?peer=peer0.org1.example.com&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22payerId%5C%22:%5C%22'+this.state.username+'%5C%22%7D%7D%22%5D', config)
+       fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22payerId%5C%22:%5C%22'+this.state.username+'%5C%22%7D%7D%22%5D', config)
             .then(response =>  response.text() )
             .then(response => {
                 if (response.length > 20 ){
