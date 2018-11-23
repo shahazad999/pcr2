@@ -152,9 +152,7 @@ class Main extends Component {
               .then(response => {
                   if (response.length === 0 && response[0] !== 'E'){
                       this.fetchData()
-                  } else {
-                      alert("Invalid Hash")  
-                  }
+                  } 
               } )
               .catch(err => console.log(err))
     }
