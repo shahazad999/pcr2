@@ -1,0 +1,8 @@
+{
+    "hostIP": "localhost",
+    "port": "4000",
+    "channelName": "mychannel",
+    "chaincodeName": "pcr3", 
+    "peerName": "peer0.org1.example.com",
+    "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDE1NDIzNjAxNjksInVzZXJuYW1lIjoiUGF5ZXIiLCJvcmdOYW1lIjoiT3JnMiIsImlhdCI6MTU0MjM2MDE2OX0.FzaNkJWmY1LsXpoMZqCOdE4nS8Vybz8YO1gcXJ7M-fc"
+}

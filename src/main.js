@@ -11,7 +11,7 @@ import ItemDisplay from 'terra-clinical-item-display';
 import Checkbox from 'terra-form-checkbox';
 import Divider from 'terra-divider';
 import DynamicGrid from 'terra-dynamic-grid/lib/DynamicGrid';
-
+import config from './config';
 
 
 // dividng the regions in the webpage
@@ -42,12 +42,12 @@ class Main extends Component {
         super(props);
         this.state = {
             'username': '', 'password':'' , isLoggedIn : false, isUserValid: false, isAdmin: false,
-            'items': [], 'hash' : '',  'id': '', hostIP: 'localhost', port: '4000',channelName: 'mychannel', chaincodeName:'pcr3', peerName: 'peer0.org1.example.com', 
-            'auth' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDE1NDIzNjAxNjksInVzZXJuYW1lIjoiUGF5ZXIiLCJvcmdOYW1lIjoiT3JnMiIsImlhdCI6MTU0MjM2MDE2OX0.FzaNkJWmY1LsXpoMZqCOdE4nS8Vybz8YO1gcXJ7M-fc', 
+            'items': [], 'hash' : '',  'id': '', hostIP: config.hostIP, port: config.port ,channelName: config.channelName, chaincodeName: config.chaincodeName, peerName: config.peerName, 
+            'auth' : config.authToken,
             fetchError: 0, 'toutput': [] ,'foutput' : [], view: false, disableHashInput: false,
             fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim', 
             fhirResponse: '',
-            totalFhirResponse: '',
+            totalFhirResponse: '', 
             selectedAnswers:[], isOpen: false
         }
         this.handleChangeUsername= this.handleChangeUsername.bind(this)
@@ -317,6 +317,8 @@ class Main extends Component {
                     </div>                    
                 </Card.Body>
             </Card>
+          
+           
         </div>
        
 /***************
@@ -371,7 +373,7 @@ class Main extends Component {
             peerName : <Input required type="text" placeholder ={this.state.peerName} value={this.state.peerName}  onChange={(e) => { this.setState({peerName: e.target.value})}}  style={{ margin: 'auto', width: '320px', height: '35px'}}/>                      
             </ul>  
             <ul>
-            <Button color="success" size="lg" onClick={() => { this.setState({ isAdmin: false})}} text="Logout" variant="action" style={{ margin: '5px'}} />        
+            <Button color="success" size="lg" onClick={() => { this.setState({ isAdmin: false, username: '', password: ''})}} text="Logout" variant="action" style={{ margin: '5px'}} />        
             </ul>              
         </div>
 
