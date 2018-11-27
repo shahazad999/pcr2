@@ -9,14 +9,12 @@
 
 Go to 
 
-----
 cd src
 
 
 and open config.json
 edit the config accordingly and run 
 
-----
 cd ../npm start
 
 
