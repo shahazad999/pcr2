@@ -1,14 +1,24 @@
 
 ## Table of Contents
 
-
-  - [npm start](#npm-start)
   - [Config File](#config-file)
+  - [npm start](#npm-start)
+
 
 ### `config file`
 
-Go to [cd src] and open config.json
-edit the config accordingly and run [cd ../npm start]
+Go to 
+
+----
+cd src
+----
+
+and open config.json
+edit the config accordingly and run 
+
+----
+cd ../npm start
+----
 
 ### `npm start`
 
