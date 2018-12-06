@@ -44,7 +44,7 @@ class Main extends Component {
             'username': '', 'password':'' , isLoggedIn : false, isUserValid: false, isAdmin: false,
             'items': [], 'hash' : '',  'id': '', hostIP: config.hostIP, port: config.port ,channelName: config.channelName, chaincodeName: config.chaincodeName, peerName: config.peerName, 
             'auth' : config.authToken,
-            fetchError: 0, 'toutput': [] ,'foutput' : [], view: false, disableHashInput: false,
+            'toutput': [] ,'foutput' : [], view: false, disableHashInput: false,
             fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim', 
             fhirResponse: '',
             totalFhirResponse: '', 
@@ -116,29 +116,29 @@ class Main extends Component {
  * Fetch the data from blockchain
  **********************************/
     fetchData() {
-      let config = {
-        method: 'GET',
-        headers: {
-          'authorization': 'Bearer '+this.state.auth,
-          'content-Type': 'application/json'
-        },
-      }
-      fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22_rev%5C%22:%5C%22'+this.state.hash+'%5C%22,%5C%22payerId%5C%22:%5C%22'+this.state.username+'%5C%22%7D%7D%22%5D', config)
-        .then(response =>  response.json() )
-        .then(response => {
-            if (JSON.stringify(response) === '[]'){
-               this.setState({ fetchError : 1})
-               this.setState({ 'foutput' : 'failed'})
-               this.setState({ 'items' : [] })
-                
-            } else {
-                //this.setState({ fetchError : 2})
-                
-                this.setState({ fetchError : 2 ,'items' : response, fhirUrl: response.Record.fhirUrl , hash: '', Holder: this.state.hash ,disableHashInput: true })
-            }
-    } )
+        let config = {
+            method: 'GET',
+            headers: {
+            'authorization': 'Bearer '+this.state.auth,
+            'content-Type': 'application/json'
+            },
+        }
+      // eslint-disable-next-line
+        fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22_rev%5C%22:%5C%22'+this.state.hash+'%5C%22,%5C%22payerId%5C%22:%5C%22'+this.state.username+'%5C%22%7D%7D%22%5D', config)
+            .then(response =>  response.json() )
+            .then(response => {
+                if (JSON.stringify(response) === '[]'){
+                this.setState({ 'items' : [] })
+                } else {
+                    this.setState({ 'items' : response, fhirUrl: response.Record.fhirUrl , hash: '', Holder: this.state.hash ,disableHashInput: true })
+                }
+            } )
  
     }
+
+/*********************************************
+ * Hash is validated before fetching the data
+ *********************************************/
     fetchHashValid(){
         let config = {
             method: 'GET',
@@ -147,15 +147,16 @@ class Main extends Component {
               'content-Type': 'application/json'
             },
           }
-         fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=isValid&args=%5B%22hash%22,%22'+this.state.hash+'%22%5D', config)
-              .then(response =>  response.text() )
-              .then(response => {
-                  if (response.length === 0 && response[0] !== 'E'){
-                      this.fetchData()
-                  } 
-              } )
-              .catch(err => console.log(err))
-    }
+        // eslint-disable-next-line
+        fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=isValid&args=%5B%22hash%22,%22'+this.state.hash+'%22%5D', config)
+            .then(response =>  response.text() )
+            .then(response => {
+                if (response.length === 0 && response[0] !== 'E'){
+                    this.fetchData()
+                } 
+            } )
+            .catch(err => console.log(err))
+        }
 /***********************************************************************
  * This fetches the USER in Blockchain network to authenticate the LOGIN
  ***********************************************************************/
@@ -167,7 +168,8 @@ class Main extends Component {
             'content-Type': 'application/json'
           },
         }
-       fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=isValid&args=%5B%22payer%22,%22'+this.state.username+'%22%5D', config)
+        // eslint-disable-next-line
+        fetch('http://'+this.state.hostIP+':'+this.state.port+'' + '/channels/'+this.state.channelName+'/chaincodes/'+this.state.chaincodeName+'?peer='+this.state.peerName+'&fcn=isValid&args=%5B%22payer%22,%22'+this.state.username+'%22%5D', config)
             .then(response =>  response.text() )
             .then(response => {
                 if (response.length === 0 && response[0] !== 'E'){
@@ -190,7 +192,7 @@ class Main extends Component {
               'Accept': 'application/json+fhir'
             },
           }
-          fetch(fhirUrl, config)
+        fetch(fhirUrl, config)
             .then(response =>  response.json()  )
             .then((response) => this.setState({ fhirResponse : response.entry , totalFhirResponse: response}));
         
@@ -214,6 +216,7 @@ class Main extends Component {
             <React.Fragment key={key}>
                 <div style={{ width:'500px', margin:'auto', fontSize: '20px',  float: "right"}}>
                     <Checkbox id="Data" name="filter" disabled={this.state.view} labelText={key[1].resource.code.text} onChange={(e) => {
+                        // eslint-disable-next-line
                         var jsonArg1 = new Object(); 
                         jsonArg1.name = key[1].resource.resourceType + key[1].resource.id; 
                         jsonArg1.value = key[1].resource.text.div;
@@ -317,8 +320,6 @@ class Main extends Component {
                     </div>                    
                 </Card.Body>
             </Card>
-          
-           
         </div>
        
 /***************
