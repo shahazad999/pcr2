@@ -36,6 +36,7 @@
     "terra-form-fieldset": "^1.26.0",
     "terra-form-input": "^1.27.0",
     "terra-form-select": "^4.24.0",
+    "terra-heading": "^2.29.1",
     "terra-hyperlink": "^1.17.0",
     "terra-icon": "^2.25.0",
     "terra-image": "^2.25.0",
