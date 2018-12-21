@@ -1,8 +1,8 @@
 {
-    "hostIP": "localhost",
+    "hostIP": "rdctstbc003",
     "port": "4000",
     "channelName": "mychannel",
-    "chaincodeName": "pcr", 
+    "chaincodeName": "mycc", 
     "peerName": "peer0.org1.example.com",
-    "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDAwMDAwMTU0NDAyNTIwMCwidXNlcm5hbWUiOiJDZXJuZXIiLCJvcmdOYW1lIjoiT3JnMSIsImlhdCI6MTU0MzkyNTIzN30.-96yHPw4vEy90ITOlX8EYFHNhAhwdwurnI-730KiN_w"
+    "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDUyNTYwODAsInVzZXJuYW1lIjoiY2VybmVyIiwib3JnTmFtZSI6Ik9yZzEiLCJpYXQiOjE1NDUyMjAwODB9.LwAaQI8VODe0fZ_X8tBqueHz_UHfRjaMUd6Pj2Lru4k"
 }
