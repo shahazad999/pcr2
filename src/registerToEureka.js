@@ -5,14 +5,14 @@ const client = new Eureka({
     // application instance information
     instance: {
       app: 'blockchain',
-      hostName: 'localhost',
-      ipAddr: '127.0.0.1',
+      hostName: 'w1751414.northamerica.cerner.net:3000',
+      ipAddr: '10.190.148.215',
       port: {
           '$':3000,
           '@enabled':'true',
       },
       vipAddress: 'my.blockchain.service',
-      statusPageUrl:'http://localhost:3000/',
+      statusPageUrl:'http://RDCTSTBC003:3000/',
       dataCenterInfo: {
         '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
         name: 'MyOwn'
