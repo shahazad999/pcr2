@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Button from 'terra-button/lib/Button';
 import Card from 'terra-card/lib/Card';
 import Input from 'terra-form-input';
-import ApplicationMenuName from 'terra-application-name/lib/ApplicationMenuName';
 import img from './cerner.png';
 import Image from 'terra-image';
 import IconAlert from 'terra-icon/lib/icon/IconAlert'
@@ -12,8 +11,6 @@ import Checkbox from 'terra-form-checkbox';
 import Divider from 'terra-divider';
 import DynamicGrid from 'terra-dynamic-grid/lib/DynamicGrid';
 import config from './config';
-import Heading from 'terra-heading/lib/Heading';
-
 
 
 // dividng the regions in the webpage
