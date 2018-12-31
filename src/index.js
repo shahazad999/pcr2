@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import Main from './main';
-import Channel from './createChannel';
 
 
 ReactDOM.render(<Main />, document.getElementById('root'));

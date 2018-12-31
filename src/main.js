@@ -84,12 +84,10 @@ class Main extends Component {
     }
     handleSubmit() {
         //Check the password
-        const { password, username } = this.state;
-        if (username === 'administrator' && password === 'creator') {
-            this.setState({ isAdmin: true })
-        }
+        const { password} = this.state;
+
         //Check the USER in blockchain 
-        else if ((password === 'blockchain')) {
+        if ((password === 'blockchain')) {
             this.fetchUser()
         } else {
             this.setState({ isLoggedIn: false })
@@ -360,41 +358,15 @@ class Main extends Component {
             </DynamicGrid>
         
 
-        /**
-         * AdminPage
-         */
-        const adminPage = <div>
-            <ul>
-                HostIP : <Input required type="text" placeholder={this.state.hostIP} value={this.state.hostIP} onChange={(e) => { this.setState({ hostIP: e.target.value }); this.forceUpdate(); }} style={{ margin: 'auto', width: '320px', height: '35px' }} />
-            </ul>
-            <ul>
-                port : <Input required type="text" placeholder={this.state.port} value={this.state.port} onChange={(e) => { this.setState({ port: e.target.value }) }} style={{ margin: 'auto', width: '320px', height: '35px' }} />
-            </ul>
-            <ul>
-                channelName : <Input required type="text" placeholder={this.state.channelName} value={this.state.channelName} onChange={(e) => { this.setState({ channelName: e.target.value }) }} style={{ margin: 'auto', width: '320px', height: '35px' }} />
-            </ul>
-            <ul>
-                chaincodeName : <Input required type="text" placeholder={this.state.chaincodeName} value={this.state.chaincodeName} onChange={(e) => { this.setState({ chaincodeName: e.target.value }) }} style={{ margin: 'auto', width: '320px', height: '35px' }} />
-            </ul>
-            <ul>
-                peerName : <Input required type="text" placeholder={this.state.peerName} value={this.state.peerName} onChange={(e) => { this.setState({ peerName: e.target.value }) }} style={{ margin: 'auto', width: '320px', height: '35px' }} />
-            </ul>
-            <ul>
-                <Button color="success" size="lg" onClick={() => { this.setState({ isAdmin: false, username: '', password: '' }) }} text="Logout" variant="action" style={{ margin: '5px' }} />
-            </ul>
-        </div>
 
         /*******************
          * Login Validation
          ********************/
         let result;
-        const { isUserValid, isAdmin } = this.state;
+        const { isUserValid } = this.state;
         if (isUserValid) {
             result = mainPage
 
-        } else if (isAdmin) {
-            result = adminPage
-    
         } else {
             result = logInPage
 
