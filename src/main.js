@@ -11,6 +11,7 @@ import Checkbox from 'terra-form-checkbox';
 import Divider from 'terra-divider';
 import DynamicGrid from 'terra-dynamic-grid/lib/DynamicGrid';
 import config from './config';
+import Select from 'react-select';
 
 
 // dividng the regions in the webpage
@@ -40,15 +41,16 @@ class Main extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            'username': '', 'password': '', isLoggedIn: false, isUserValid: false, isAdmin: false,
+            'username': 'PM74543', 'password': '', isLoggedIn: false, isUserValid: false, isAdmin: false,
             'items': [], 'hash': '', 'id': '', hostIP: config.hostIP, port: config.port, channelName: config.channelName, chaincodeName: config.chaincodeName, peerName: config.peerName,
             'auth': config.authToken,
             'toutput': [], 'foutput': [], view: false, disableHashInput: false,
             fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim',
             fhirResponse: '',
-            totalFhirResponse: '',
+            totalFhirResponse: '', submitersFilters: ["Procedure","MedicationOrder","Observation"], 
             selectedAnswers: [], isOpen: false
         }
+        
         this.handleChangeUsername = this.handleChangeUsername.bind(this)
         this.handleChangePassword = this.handleChangePassword.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -181,19 +183,43 @@ class Main extends Component {
     /******************************************************************
      * Fetches data from the FHIR URl that recived from the blockchain 
      *****************************************************************/
-    fetchURL() {
+    fetchURL(event) {
         const fhirUrl = this.state.fhirUrl
+        const prefix = "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/"
+        const postfix = "?patient=1316020"
         let config = {
             method: 'GET',
             headers: {
                 'Accept': 'application/json+fhir'
             },
         }
-        fetch(fhirUrl, config)
+        fetch(prefix+event+postfix, config)
             .then(response => response.json())
             .then((response) => this.setState({ fhirResponse: response.entry, totalFhirResponse: response }));
 
     }
+
+    /**
+     * Fetch Submitters Allowed COmponenets
+     */
+
+    fetchSubmittersAllowedComponenets(){
+        let config = {
+            method: 'GET',
+            headers: {
+                'authorization': 'Bearer ' + this.state.auth,
+                'content-Type': 'application/json'
+            },
+        }
+        // eslint-disable-next-line
+        fetch('http://' + this.state.hostIP + ':' + this.state.port + '' + '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
+            .then(response => response.text())
+            .then(response => {
+               this.setState({ submitersFilters : response.fhir})
+            })
+            .catch(err => console.log(err))
+    }
+    
 
 
 
@@ -201,6 +227,7 @@ class Main extends Component {
         const buttonStyle = { margin: '5px' };
         const fhirResponse = this.state.fhirResponse;
         const { view, selectedAnswers } = this.state;
+        const submitersFilters =this.state.submitersFilters;
 
         /*********
          * Headers
@@ -221,6 +248,7 @@ class Main extends Component {
          *********************************************************************************/
         const checkBoxSelection = Object.entries(fhirResponse).map(key =>
             <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
+            
                 <React.Fragment key={key}>
                     <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
                         <Checkbox id="Data" name="filter" disabled={this.state.view} labelText={key[1].resource.code.text} onChange={(e) => {
@@ -242,6 +270,42 @@ class Main extends Component {
                 </React.Fragment>
             </div>
         )
+        let checkBoxSelections;
+        if (fhirResponse.length >0) {
+            checkBoxSelections = <div>
+                 <p><b>Select the CLinical Info you want to view</b></p>
+                 {checkBoxSelection}
+             </div> 
+        }else {
+            
+        }
+        /**
+         * Selecting the Filtering Componencts
+         */
+
+        const componenetSelection = Object.entries(submitersFilters).map(key =>
+            <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
+                <React.Fragment key={key}>
+                    <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
+                        <Checkbox id="Data" name="filter" /* disabled={this.state.view} */ labelText={key[1]} onChange={(e) => {
+                            // eslint-disable-next-line
+                            this.fetchURL(key[1]);
+
+                        }} />
+                    </div>
+                </React.Fragment>
+            </div>
+        )
+        let componenetSelections;
+        if (submitersFilters.length >0) {
+             componenetSelections = <div>
+                 <p><b>Select the type of CLinical Info you want to view</b></p>
+                 {componenetSelection}
+             </div> 
+        }else {
+            
+        }
+
 
         /*******************************************************************************
          * Display the final output retrived from FHIR after checkbox filtering only Entry
@@ -272,14 +336,14 @@ class Main extends Component {
         /**************************************************************************************************
          * Dispaly the Button that fetches the fhirURL on Succsessfull retrivel of Fhir Url from blockchain
          **************************************************************************************************/
-        let url;
+        let errorDialog;
         const { fhirUrl, hash } = this.state;
         if (fhirUrl.length > 10) {
-            url = <Button color="success" size="lg" onClick={this.handleSubmitQuery} text="Search" variant="action" style={{ margin: '5px' }} />
+            errorDialog = <Button color="success" size="lg" onClick={this.handleSubmitQuery} text="Search" variant="action" style={{ margin: '5px' }} />
         }
         //If cant fetch blockchain error is displayed saying invalid hash
         else if (fhirUrl.length < 10 && hash.length > 33) {
-            url = <div>
+            errorDialog = <div>
                 <LabelValueView >
                     <ItemDisplay text="Invalid or UnAuthorised Hash" textStyle="attention" icon={<IconAlert />} />
                 </LabelValueView>
@@ -287,7 +351,7 @@ class Main extends Component {
         }
         //After succsess full fetch  
         if (fhirResponse.length > 2) {
-            url = <Button color="success" size="lg" onClick={this.reset} text="Reset" variant="action" style={{ margin: '5px' }} />
+            errorDialog = <Button color="success" size="lg" onClick={this.reset} text="Reset" variant="action" style={{ margin: '5px' }} />
 
         }
 
@@ -344,9 +408,10 @@ class Main extends Component {
                         <div style={{ margin: 'auto', height: '200px', width: '500px' }}>
                             <p><b>Query the Additional Clinical Information</b></p>
                             Hash : <Input required type="text" placeholder={this.state.Holder} value={this.state.hash} onChange={this.handleChangeHash} style={{ margin: 'auto', width: '320px', height: '35px' }} />
-                            {url}
+                            {errorDialog}
                         </div>
-                        {checkBoxSelection}
+                        {componenetSelections}
+                        {checkBoxSelections}
                         <div style={{ float: "right" }}>
                             {viewButton}
                         </div>
@@ -372,13 +437,17 @@ class Main extends Component {
 
         }
 
+
         /***********************************
          * Returning the Rendered Elements
          *************************************/
         return (
             <div>
                 
-                {result}
+
+{mainPage}
+
+                
             </div>
         );
     }

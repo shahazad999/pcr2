@@ -1,8 +1,8 @@
 {
-    "hostIP": "rdctstbc003",
+    "hostIP": "rdctstbc001",
     "port": "4000",
     "channelName": "mychannel",
-    "chaincodeName": "mycc", 
+    "chaincodeName": "myc", 
     "peerName": "peer0.org1.example.com",
     "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDUyNTYwODAsInVzZXJuYW1lIjoiY2VybmVyIiwib3JnTmFtZSI6Ik9yZzEiLCJpYXQiOjE1NDUyMjAwODB9.LwAaQI8VODe0fZ_X8tBqueHz_UHfRjaMUd6Pj2Lru4k"
 }
