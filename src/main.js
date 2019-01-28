@@ -45,7 +45,7 @@ class Main extends Component {
             'items': [], 'hash': '', 'id': '', hostIP: config.hostIP, port: config.port, channelName: config.channelName, chaincodeName: config.chaincodeName, peerName: config.peerName,
             'auth': config.authToken,
             'toutput': [], 'foutput': [], view: false, disableHashInput: false,
-            fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim',
+            fhirUrl: ["a","b"], Holder: 'Enter a valid Hash provided in the claim',
             fhirResponse: '',
             totalFhirResponse: '', submitersFilters: ["Procedure","MedicationOrder","Observation"], 
             selectedAnswers: [], isOpen: false
@@ -283,7 +283,7 @@ class Main extends Component {
          * Selecting the Filtering Componencts
          */
 
-        const componenetSelection = Object.entries(submitersFilters).map(key =>
+        const componenetSelection = Object.entries(fhirUrl).map(key =>
             <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
                 <React.Fragment key={key}>
                     <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>

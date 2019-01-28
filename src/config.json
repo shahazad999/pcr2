@@ -4,5 +4,5 @@
     "channelName": "mychannel",
     "chaincodeName": "myc", 
     "peerName": "peer0.org1.example.com",
-    "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDUyNTYwODAsInVzZXJuYW1lIjoiY2VybmVyIiwib3JnTmFtZSI6Ik9yZzEiLCJpYXQiOjE1NDUyMjAwODB9.LwAaQI8VODe0fZ_X8tBqueHz_UHfRjaMUd6Pj2Lru4k"
+    "authToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDAwMDAwMTU0NDE5MTkwMCwidXNlcm5hbWUiOiJDZXJuZXIiLCJvcmdOYW1lIjoiT3JnMSIsImlhdCI6MTU0NDA5MTg5NX0.Alg1Z0Iehnlz1eFD98RiI-JB18Q5cqst90VHd04cXUU"
 }
