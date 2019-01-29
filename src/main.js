@@ -41,20 +41,14 @@ class Main extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            'username': 'PM74543', 'password': '', isLoggedIn: false, isUserValid: false, isAdmin: false,
+            'username': '', 'password': '', isLoggedIn: false, isUserValid: false, isAdmin: false,
             'items': [], 'hash': '', 'id': '', hostIP: config.hostIP, port: config.port, channelName: config.channelName, chaincodeName: config.chaincodeName, peerName: config.peerName,
             'auth': config.authToken,
             'toutput': [], 'foutput': [], view: false, disableHashInput: false,
             fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim',
             fhirResponse: [{resource: { resourceType: '' , code: '', category:'' , name: [{}], medicationCodeableConcept: {}}}],
             totalFhirResponse: '', submitersFilters: [
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Patient?_id=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Procedure?patient=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Observation?patient=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/DiagnosticReport?patient=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/DocumentReference?patient=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/MedicationOrder?patient=1316024"
-              ], 
+             ], 
             selectedAnswers: [], isOpen: false, selectedClinicalInfoType: ''
         }
         
@@ -681,7 +675,7 @@ class Main extends Component {
             <div>
                 
 
-{mainPage}
+{result}
 
                 
             </div>
