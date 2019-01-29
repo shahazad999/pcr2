@@ -45,10 +45,17 @@ class Main extends Component {
             'items': [], 'hash': '', 'id': '', hostIP: config.hostIP, port: config.port, channelName: config.channelName, chaincodeName: config.chaincodeName, peerName: config.peerName,
             'auth': config.authToken,
             'toutput': [], 'foutput': [], view: false, disableHashInput: false,
-            fhirUrl: ["a","b"], Holder: 'Enter a valid Hash provided in the claim',
-            fhirResponse: '',
-            totalFhirResponse: '', submitersFilters: ["Procedure","MedicationOrder","Observation"], 
-            selectedAnswers: [], isOpen: false
+            fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim',
+            fhirResponse: [{resource: { resourceType: '' , code: '', category:'' , name: [{}], medicationCodeableConcept: {}}}],
+            totalFhirResponse: '', submitersFilters: [
+                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Patient?_id=1316024",
+                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Procedure?patient=1316024",
+                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Observation?patient=1316024",
+                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/DiagnosticReport?patient=1316024",
+                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/DocumentReference?patient=1316024",
+                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/MedicationOrder?patient=1316024"
+              ], 
+            selectedAnswers: [], isOpen: false, selectedClinicalInfoType: ''
         }
         
         this.handleChangeUsername = this.handleChangeUsername.bind(this)
@@ -129,7 +136,7 @@ class Main extends Component {
                 if (JSON.stringify(response) === '[]') {
                     this.setState({ 'items': [] })
                 } else {
-                    this.setState({ 'items': response, fhirUrl: response.Record.fhirUrl, hash: '', Holder: this.state.hash, disableHashInput: true })
+                    this.setState({ 'items': response, fhirUrl: response.Record.fhirUrl, 'submitersFilters': response.Record.fhirUrl, hash: '', Holder: this.state.hash, disableHashInput: true })
                 }
             })
 
@@ -193,7 +200,7 @@ class Main extends Component {
                 'Accept': 'application/json+fhir'
             },
         }
-        fetch(prefix+event+postfix, config)
+        fetch(event, config)
             .then(response => response.json())
             .then((response) => this.setState({ fhirResponse: response.entry, totalFhirResponse: response }));
 
@@ -225,9 +232,96 @@ class Main extends Component {
 
     render() {
         const buttonStyle = { margin: '5px' };
-        const fhirResponse = this.state.fhirResponse;
+        var fhirResponse = this.state.fhirResponse;
         const { view, selectedAnswers } = this.state;
         const submitersFilters =this.state.submitersFilters;
+
+
+        var seen = {};
+        if (fhirResponse[0].resource.resourceType === "MedicationOrder") {
+            fhirResponse = fhirResponse.filter(function (entry) {
+                var previous;
+
+                if (seen.hasOwnProperty(entry.resource.medicationCodeableConcept.text)) {
+
+                    previous = seen[entry.resource.medicationCodeableConcept.text];
+                    previous.resource.text.div.push(entry.resource.text.div);
+                    return false;
+                }
+
+                if (!Array.isArray(entry.resource.text.div)) {
+                    entry.resource.text.div = [entry.resource.text.div];
+                }
+                seen[entry.resource.medicationCodeableConcept.text] = entry;
+                return true;
+            });
+        } else if ( fhirResponse[0].resource.resourceType === "DocumentReference") {
+            fhirResponse = this.state.fhirResponse.filter(function (entry) {
+                var previous;
+
+                if (seen.hasOwnProperty(entry.resource.description)) {
+                    previous = seen[entry.resource.description];
+                    previous.resource.text.div.push(entry.resource.text.div);
+
+                    return false;
+                }
+
+                if (!Array.isArray(entry.resource.text.div)) {
+                    entry.resource.text.div = [entry.resource.text.div];
+                }
+
+                seen[entry.resource.description] = entry;
+
+                return true;
+            });
+        } else if ( fhirResponse[0].resource.resourceType === "Procedure" || fhirResponse[0].resource.resourceType === "DiagnosticReport") {
+            fhirResponse = fhirResponse.filter(function (entry) {
+                var previous;
+
+                if (seen.hasOwnProperty(entry.resource.code.text)) {
+
+                    previous = seen[entry.resource.code.text];
+                    previous.resource.text.div.push(entry.resource.text.div);
+                    return false;
+                }
+
+                // entry.data probably isn't an array; make it one for consistency
+                if (!Array.isArray(entry.resource.text.div)) {
+                    entry.resource.text.div = [entry.resource.text.div];
+                }
+
+                // Remember that we've seen it
+                seen[entry.resource.code.text] = entry;
+
+                // Keep this one, we'll merge any others that match into it
+                return true;
+            });
+        }else if ( fhirResponse[0].resource.resourceType === "Observation" ) {
+            fhirResponse = fhirResponse.filter(function (entry) {
+                var previous;
+
+                // Have we seen this label before?
+                if (seen.hasOwnProperty(entry.resource.category.text.substr())) {
+                    // Yes, grab it and add this data to it
+                    previous = seen[entry.resource.category.text];
+                    previous.resource.text.div.push(entry.resource.text.div);
+
+                    // Don't keep this entry, we've merged it into the previous one
+                    return false;
+                }
+
+                // entry.data probably isn't an array; make it one for consistency
+                if (!Array.isArray(entry.resource.text.div)) {
+                    entry.resource.text.div = [entry.resource.text.div];
+                }
+
+                // Remember that we've seen it
+                seen[entry.resource.category.text] = entry;
+
+                // Keep this one, we'll merge any others that match into it
+                return true;
+            });
+        }
 
         /*********
          * Headers
@@ -243,53 +337,23 @@ class Main extends Component {
             <Button onClick={this.handleLogout} text="Log Out" variant="emphasis" style={{ float: 'right', height: '45px', position: 'relative' }} />
         </div>
 
-        /********************************************************************************
-         * Checkbox UI to select the key vlaues to be displayed and push selected elemets to array
-         *********************************************************************************/
-        const checkBoxSelection = Object.entries(fhirResponse).map(key =>
-            <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
-            
-                <React.Fragment key={key}>
-                    <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
-                        <Checkbox id="Data" name="filter" disabled={this.state.view} labelText={key[1].resource.code.text} onChange={(e) => {
-                            // eslint-disable-next-line
-                            var jsonArg1 = new Object();
-                            jsonArg1.name = key[1].resource.resourceType + key[1].resource.id;
-                            jsonArg1.value = key[1].resource.text.div;
-                            jsonArg1.info = key[1].resource.meta.lastUpdated;
-                            jsonArg1.patientInfo = key[1].resource.subject;
-                            const { selectedAnswers } = this.state;
-                            if (e.currentTarget.checked) {
-                                selectedAnswers.push(jsonArg1);
-                            } else if (!e.currentTarget.checked) {
-                                selectedAnswers.splice(selectedAnswers.values(jsonArg1), 1);
-                            }
-                            this.setState({ selectedAnswers });
-                        }} />
-                    </div>
-                </React.Fragment>
-            </div>
-        )
-        let checkBoxSelections;
-        if (fhirResponse.length >0) {
-            checkBoxSelections = <div>
-                 <p><b>Select the CLinical Info you want to view</b></p>
-                 {checkBoxSelection}
-             </div> 
-        }else {
-            
-        }
+
         /**
          * Selecting the Filtering Componencts
          */
+      
 
-        const componenetSelection = Object.entries(fhirUrl).map(key =>
+        const componenetSelection = Object.entries(submitersFilters).map(key =>
             <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
                 <React.Fragment key={key}>
                     <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
-                        <Checkbox id="Data" name="filter" /* disabled={this.state.view} */ labelText={key[1]} onChange={(e) => {
+                        <Checkbox id="Data" name="filter" /* disabled={this.state.view} */ labelText= {key[1].substr(79,  key[1].length-79-16)} onChange={(e) => {
                             // eslint-disable-next-line
-                            this.fetchURL(key[1]);
+                            this.fetchURL(key[1]); this.setState({selectedClinicalInfoType: key[1].substr(79,  key[1].length-79-16)});
+
+                            if (key[1].substr(79,  key[1].length-79-16 ) === "Pat"){
+
+                            }
 
                         }} />
                     </div>
@@ -299,12 +363,179 @@ class Main extends Component {
         let componenetSelections;
         if (submitersFilters.length >0) {
              componenetSelections = <div>
-                 <p><b>Select the type of CLinical Info you want to view</b></p>
+                 <p><b>Select the type of Clinical Info you want to view</b></p>
                  {componenetSelection}
              </div> 
         }else {
             
         }
+
+
+
+        /********************************************************************************
+         * Checkbox UI to select the key vlaues to be displayed and push selected elemets to array
+         *********************************************************************************/
+
+
+
+        let checkBoxSelections;
+        const selectedClinicalInfoType = this.state.selectedClinicalInfoType;
+        if (fhirResponse.length >0 && (selectedClinicalInfoType === 'Procedure'  || selectedClinicalInfoType === 'DiagnosticReport' ) ) {
+            const checkBoxSelectionForProcedureorObservation = Object.entries(fhirResponse).map(key =>
+                <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
+                
+                    <React.Fragment key={key}>
+                    
+                        <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
+                            <Checkbox id="Data" name="filter" disabled={this.state.view} labelText={key[1].resource.code.text} onChange={(e) => {
+                                // eslint-disable-next-line
+                                var jsonArg1 = new Object();
+                                jsonArg1.name = key[1].resource.resourceType + key[1].resource.id;
+                                jsonArg1.value = key[1].resource.text.div;
+                                jsonArg1.info = key[1].resource.meta.lastUpdated;
+                                jsonArg1.patientInfo = key[1].resource.subject;
+                                const { selectedAnswers } = this.state;
+                                if (e.currentTarget.checked) {
+                                    selectedAnswers.push(jsonArg1);
+                                } else if (!e.currentTarget.checked) {
+                                    selectedAnswers.splice(selectedAnswers.values(jsonArg1), 1);
+                                }
+                                this.setState({ selectedAnswers });
+                            }} />
+                        </div>
+                    </React.Fragment>
+                </div>
+            )
+            checkBoxSelections = <div >
+                 <p ><b>Select the Clinical Info you want to view</b></p>
+                 {checkBoxSelectionForProcedureorObservation}
+             </div> 
+        }else if (fhirResponse.length >0 && (selectedClinicalInfoType === 'MedicationOrder' ) ){
+            const checkBoxSelectionForMedicationOrder = Object.entries(fhirResponse).map(key =>
+                <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
+                
+                    <React.Fragment key={key}>
+                    
+                        <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
+                            <Checkbox id="Data" name="filter" disabled={this.state.view} labelText={key[1].resource.medicationCodeableConcept.text} onChange={(e) => {
+                                // eslint-disable-next-line
+                                var jsonArg1 = new Object();
+                                jsonArg1.name = key[1].resource.resourceType + key[1].resource.id;
+                                jsonArg1.value = key[1].resource.text.div;
+                                jsonArg1.info = key[1].resource.meta.lastUpdated;
+                                jsonArg1.patientInfo = key[1].resource.subject;
+                                const { selectedAnswers } = this.state;
+                                if (e.currentTarget.checked) {
+                                    selectedAnswers.push(jsonArg1);
+                                } else if (!e.currentTarget.checked) {
+                                    selectedAnswers.splice(selectedAnswers.values(jsonArg1), 1);
+                                }
+                                this.setState({ selectedAnswers });
+                            }} />
+                        </div>
+                    </React.Fragment>
+                </div>
+            )
+            checkBoxSelections = <div>
+                 <p><b>Select the Clinical Info you want to view</b></p>
+                 {checkBoxSelectionForMedicationOrder}
+             </div> 
+        }else if (fhirResponse.length >0 && (selectedClinicalInfoType === 'DocumentReference' ) ){
+            const checkBoxSelectionForDocumentReference = Object.entries(fhirResponse).map(key =>
+                <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
+                
+                    <React.Fragment key={key}>
+                    
+                        <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
+                            <Checkbox id="Data" name="filter" disabled={this.state.view} labelText={key[1].resource.description} onChange={(e) => {
+                                // eslint-disable-next-line
+                                var jsonArg1 = new Object();
+                                jsonArg1.name = key[1].resource.resourceType + key[1].resource.id;
+                                jsonArg1.value = key[1].resource.text.div;
+                                jsonArg1.info = key[1].resource.meta.lastUpdated;
+                                jsonArg1.patientInfo = key[1].resource.subject;
+                                const { selectedAnswers } = this.state;
+                                if (e.currentTarget.checked) {
+                                    selectedAnswers.push(jsonArg1);
+                                } else if (!e.currentTarget.checked) {
+                                    selectedAnswers.splice(selectedAnswers.values(jsonArg1), 1);
+                                }
+                                this.setState({ selectedAnswers });
+                            }} />
+                        </div>
+                    </React.Fragment>
+                </div>
+            )
+            checkBoxSelections = <div>
+                 <p><b>Select the Clinical Info you want to view</b></p>
+                 {checkBoxSelectionForDocumentReference}
+             </div> 
+        } else if (fhirResponse.length >0 && (selectedClinicalInfoType === 'Pat' ) ){
+
+            const checkBoxSelectionForPatDemographics = Object.entries(fhirResponse).map(key =>
+                <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
+                
+                    <React.Fragment key={key}>
+                    
+                        <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
+                            <Checkbox id="Data" name="filter" disabled={this.state.view} labelText={key[1].resource.name[0].text} onChange={(e) => {
+                                // eslint-disable-next-line
+                                var jsonArg1 = new Object();
+                                jsonArg1.name = key[1].resource.resourceType + key[1].resource.id;
+                                jsonArg1.value = key[1].resource.text.div;
+                                jsonArg1.info = key[1].resource.meta.lastUpdated;
+                                
+                                const { selectedAnswers } = this.state;
+                                if (e.currentTarget.checked) {
+                                    selectedAnswers.push(jsonArg1);
+                                } else if (!e.currentTarget.checked) {
+                                    selectedAnswers.splice(selectedAnswers.values(jsonArg1), 1);
+                                }
+                                this.setState({ selectedAnswers });
+                            }} />
+                        </div>
+                    </React.Fragment>
+                </div>
+            )
+            checkBoxSelections = <div>
+                 <p><b>Demographic Details of Patient</b></p>
+                 {checkBoxSelectionForPatDemographics}
+             </div> 
+
+
+        } else if (fhirResponse.length >0 && ( selectedClinicalInfoType === 'Observation'  ) ) {
+            const checkBoxSelectionForProcedureorObservation = Object.entries(fhirResponse).map(key =>
+                <div style={{ margin: 'auto', position: 'relative', paddingLeft: '20px' }}>
+                
+                    <React.Fragment key={key}>
+                    
+                        <div style={{ width: '500px', margin: 'auto', fontSize: '20px', float: "right" }}>
+                            <Checkbox id="Data" name="filter" disabled={this.state.view} labelText={key[1].resource.category.text} onChange={(e) => {
+                                // eslint-disable-next-line
+                                var jsonArg1 = new Object();
+                                jsonArg1.name = key[1].resource.resourceType + key[1].resource.id;
+                                jsonArg1.value = key[1].resource.text.div;
+                                jsonArg1.info = key[1].resource.meta.lastUpdated;
+                                jsonArg1.patientInfo = key[1].resource.subject;
+                                const { selectedAnswers } = this.state;
+                                if (e.currentTarget.checked) {
+                                    selectedAnswers.push(jsonArg1);
+                                } else if (!e.currentTarget.checked) {
+                                    selectedAnswers.splice(selectedAnswers.values(jsonArg1), 1);
+                                }
+                                this.setState({ selectedAnswers });
+                            }} />
+                        </div>
+                    </React.Fragment>
+                </div>
+            )
+            checkBoxSelections = <div>
+                 <p><b>Select the Clinical Info you want to view</b></p>
+                 {checkBoxSelectionForProcedureorObservation}
+             </div> 
+        
+                        }   
+
 
 
         /*******************************************************************************
@@ -321,6 +552,7 @@ class Main extends Component {
                                 <React.Fragment key={item.name}>
                                     <ul>
                                         <div dangerouslySetInnerHTML={{ __html: item.value }} />
+                                        
                                         <p><b>Last Updated:</b> {item.info}</p>
                                         <Divider />
                                     </ul>
@@ -410,7 +642,11 @@ class Main extends Component {
                             Hash : <Input required type="text" placeholder={this.state.Holder} value={this.state.hash} onChange={this.handleChangeHash} style={{ margin: 'auto', width: '320px', height: '35px' }} />
                             {errorDialog}
                         </div>
+                        <div style={{margin: '10px'}}>
                         {componenetSelections}
+                        </div>
+                        
+                        
                         {checkBoxSelections}
                         <div style={{ float: "right" }}>
                             {viewButton}
