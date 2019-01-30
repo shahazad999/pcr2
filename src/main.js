@@ -175,7 +175,7 @@ class Main extends Component {
             },
         }
         // eslint-disable-next-line
-        fetch('http://' + this.state.hostIP + ':' + this.state.port + '' + '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22payer%22,%22' + this.state.username + '%22%5D', config)
+        fetch(/* 'http://' + this.state.hostIP + ':' + this.state.port + '' */'/api' + '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22payer%22,%22' + this.state.username + '%22%5D', config)
             .then(response => response.text())
             .then(response => {
                 if (response.length === 0 && response[0] !== 'E') {
@@ -746,7 +746,7 @@ class Main extends Component {
             <div>
                 
 
-{mainPage}
+{result}
 
                 
             </div>
