@@ -187,6 +187,7 @@ class Main extends Component {
             })
             .catch(err => console.log(err))
     }
+    
     /******************************************************************
      * Fetches data from the FHIR URl that recived from the blockchain 
      *****************************************************************/

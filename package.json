@@ -64,6 +64,6 @@
     "not op_mini all"
   ],
   "homepage": "https://associates.devcernerhdx.com/blockchain/",
-  "proxy": "http://rdctstbc003:4000/"
+  "proxy": "http://rdctstbc001:4000/"
 
 }
