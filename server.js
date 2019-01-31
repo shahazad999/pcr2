@@ -3,7 +3,7 @@ var proxy = require('http-proxy-middleware')
 var path = require('path');
 var app = express()
 
-app.use('/', proxy({ target: 'http://rdctstbc001:4000/', changeOrigin: true }));
+app.use('/api', proxy({ target: 'http://rdctstbc001:4000/', changeOrigin: true }));
 app.use(express.static(path.join(__dirname, 'build')));
 
 app.get('/', function(req, res) {
