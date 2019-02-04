@@ -13,7 +13,7 @@ import DynamicGrid from 'terra-dynamic-grid/lib/DynamicGrid';
 import config from './config';
 import Select from 'react-select';
 import Radio from 'terra-form-radio'
-
+import axios from 'axios';
 // dividng the regions in the webpage
 const template = {
     'grid-template-columns': '1fr 1fr',
@@ -47,14 +47,7 @@ class Main extends Component {
             'toutput': [], 'foutput': [], view: false, disableHashInput: false,disableFilterSelection: false,
             fhirUrl: '', Holder: 'Enter a valid Hash provided in the claim',
             fhirResponse: [{resource: { resourceType: '' , code: '', category:'' , name: [{}], medicationCodeableConcept: {}}}],
-            totalFhirResponse: '', submitersFilters: [
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Patient?_id=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Procedure?patient=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/Observation?patient=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/DiagnosticReport?patient=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/DocumentReference?patient=1316024",
-                "https://fhir-open.sandboxcerner.com/dstu2/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/MedicationOrder?patient=1316024"
-              ], 
+            totalFhirResponse: '', submitersFilters: [], 
             selectedAnswers: [], isOpen: false, selectedClinicalInfoType: ''
         }
         
@@ -72,7 +65,8 @@ class Main extends Component {
         var len = hash.length;
         //Fetch blockchain function triggered hash lenght is met
         if (len > 33) {
-            this.fetchHashValid()
+            //this.fetchHashValid()
+            this.fetchData()
         }
         //When no Checkbox is selected  
      /*    const { selectedAnswers, view } = this.state;
@@ -130,7 +124,7 @@ class Main extends Component {
             },
         }
         // eslint-disable-next-line
-        fetch('/api'  +'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22_rev%5C%22:%5C%22' + this.state.hash + '%5C%22,%5C%22payerId%5C%22:%5C%22' + this.state.username + '%5C%22%7D%7D%22%5D', config)
+        fetch('http://rdctstbc001.northamerica.cerner.net:4000'  +'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22_rev%5C%22:%5C%22' + this.state.hash + '%5C%22,%5C%22payerId%5C%22:%5C%22' + this.state.username + '%5C%22%7D%7D%22%5D', config)
             .then(response => response.json())
             .then(response => {
                 if (JSON.stringify(response) === '[]') {
@@ -145,6 +139,24 @@ class Main extends Component {
     /*********************************************
      * Hash is validated before fetching the data
      *********************************************/
+/*      fetchHashValid() {
+        let config = {
+            method: 'GET',
+            headers: {
+                'authorization': 'Bearer ' + this.state.auth,
+                'content-Type': 'application/json'
+            },
+        }
+        // eslint-disable-next-line
+        fetch( '/blockchain/api'+ '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
+            .then(response => response.text())
+            .then(response => {
+                if (response.length === 0 && response[0] !== 'E') {
+                    this.fetchData()
+                }
+            })
+            .catch(err => console.log(err))
+    }  */
     fetchHashValid() {
         let config = {
             method: 'GET',
@@ -154,15 +166,15 @@ class Main extends Component {
             },
         }
         // eslint-disable-next-line
-        fetch( '/api'+ /* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
+        fetch( 'http://rdctstbc001.northamerica.cerner.net:4000'+ '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
             .then(response => response.text())
             .then(response => {
-                if (response.length === 0 && response[0] !== 'E') {
+                if ( response[0] !== 'E') {
                     this.fetchData()
                 }
             })
             .catch(err => console.log(err))
-    }
+    } 
     /***********************************************************************
      * This fetches the USER in Blockchain network to authenticate the LOGIN
      ***********************************************************************/
@@ -177,7 +189,7 @@ class Main extends Component {
         // eslint-disable-next-line
         //fetch(/* 'http://' + this.state.hostIP  + ':' + this.state.port + '' */'/api' + '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22payer%22,%22' + this.state.username + '%22%5D', config)
 
-        fetch( '/api'+ /* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22payer%22,%22' + this.state.username + '%22%5D', config)
+        fetch( 'http://rdctstbc001.northamerica.cerner.net:4000'+ /* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22payer%22,%22' + this.state.username + '%22%5D', config)
             .then(response => response.text())
             .then(response => {
                 if (response.length === 0 && response[0] !== 'E') {
@@ -222,7 +234,7 @@ class Main extends Component {
             },
         }
         // eslint-disable-next-line
-        fetch('/api' + /* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
+        fetch('http://rdctstbc001.northamerica.cerner.net:4000' + /* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
             .then(response => response.text())
             .then(response => {
                this.setState({ submitersFilters : response.fhir})
