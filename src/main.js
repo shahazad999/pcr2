@@ -124,7 +124,7 @@ class Main extends Component {
             },
         }
         // eslint-disable-next-line
-        fetch('http://rdctstbc001.northamerica.cerner.net:4000'  +'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22_rev%5C%22:%5C%22' + this.state.hash + '%5C%22,%5C%22payerId%5C%22:%5C%22' + this.state.username + '%5C%22%7D%7D%22%5D', config)
+        fetch(/* 'http://rdctstbc001.northamerica.cerner.net:4000'  + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=queryCustom&args=%5B%22%7B%5C%22selector%5C%22:%7B%5C%22_rev%5C%22:%5C%22' + this.state.hash + '%5C%22,%5C%22payerId%5C%22:%5C%22' + this.state.username + '%5C%22%7D%7D%22%5D', config)
             .then(response => response.json())
             .then(response => {
                 if (JSON.stringify(response) === '[]') {
@@ -166,7 +166,7 @@ class Main extends Component {
             },
         }
         // eslint-disable-next-line
-        fetch( 'http://rdctstbc001.northamerica.cerner.net:4000'+ '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
+        fetch(/*  'http://rdctstbc001.northamerica.cerner.net:4000'+ */ '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
             .then(response => response.text())
             .then(response => {
                 if ( response[0] !== 'E') {
@@ -189,7 +189,7 @@ class Main extends Component {
         // eslint-disable-next-line
         //fetch(/* 'http://' + this.state.hostIP  + ':' + this.state.port + '' */'/api' + '/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22payer%22,%22' + this.state.username + '%22%5D', config)
 
-        fetch( 'http://rdctstbc001.northamerica.cerner.net:4000'+ /* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22payer%22,%22' + this.state.username + '%22%5D', config)
+        fetch( /* 'http://rdctstbc001.northamerica.cerner.net:4000'+  *//* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22payer%22,%22' + this.state.username + '%22%5D', config)
             .then(response => response.text())
             .then(response => {
                 if (response.length === 0 && response[0] !== 'E') {
@@ -234,7 +234,7 @@ class Main extends Component {
             },
         }
         // eslint-disable-next-line
-        fetch('http://rdctstbc001.northamerica.cerner.net:4000' + /* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
+        fetch(/* 'http://rdctstbc001.northamerica.cerner.net:4000' + */ /* 'http://' + this.state.hostIP + ':' + this.state.port + '' + */'/channels/' + this.state.channelName + '/chaincodes/' + this.state.chaincodeName + '?peer=' + this.state.peerName + '&fcn=isValid&args=%5B%22hash%22,%22' + this.state.hash + '%22%5D', config)
             .then(response => response.text())
             .then(response => {
                this.setState({ submitersFilters : response.fhir})
